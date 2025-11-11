@@ -60,16 +60,17 @@ export const employerRegister = async(req,res)=>{
         });
 
         await newEmployer.save();
-        return res.status(200).json({success:true, message:"user created successfully"});
 
         const token = jwt.sign({id: newEmployer._id}, process.env.JWT_SECRET, {expiresIn: '7d'}); 
         
-        const cookie = res.cookie("token", token, {
+        res.cookie("token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         })
+
+        return res.status(200).json({success:true, message:"user created successfully"});
         
     } catch (error) {
         return res.status(400).json(error.message);
@@ -90,29 +91,17 @@ export const employeeLogin = async(req,res)=>{
         if(!existingUser){
             return res.status(400).json({success:false, message:"The email does not exists"})
         }
-        /*const {token} = req.cookies;
-        if(token){
-            try {
-                const decodedToken= jwt.verify(token,process.env.JWT_SECRET);
-                return res.status(200).json({success:true, message:"already logged in",userId: decodedToken._id })
-                
-            } catch (error) {
-                return res.status(400).json(error.message);
-                
-            }
-        }*/
 
-        const decryptedPass = await bcrypt.compare(existingUser.password,password);
+        const decryptedPass = await bcrypt.compare(password,existingUser.password)
 
         if(decryptedPass){
             const token = jwt.sign({id: existingUser._id}, process.env.JWT_SECRET, {expiresIn: '7d'}); 
         
-            const cookie = res.cookie("token", token, {
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-            
-        })
+            res.cookie("token", token, {
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            })
         return res.status(200).json({success:true, message:"Welcome to Rokomari"});
 
         }else{
@@ -124,6 +113,7 @@ export const employeeLogin = async(req,res)=>{
         return res.status(400).json(error.message);
     }
 };
+
 
 export const employerLogin = async(req,res)=>{
     try {
@@ -138,19 +128,9 @@ export const employerLogin = async(req,res)=>{
         if(!existingUser){
             return res.status(400).json({success:false, message:"The email does not exists"})
         }
-        /*const {token} = req.cookies;
-        if(token){
-            try {
-                const decodedToken= jwt.verify(token,process.env.JWT_SECRET);
-                return res.status(200).json({success:true, message:"already logged in",userId: decodedToken._id })
-                
-            } catch (error) {
-                return res.status(400).json(error.message);
-                
-            }
-        }*/
+      
 
-        const decryptedPass = await bcrypt.compare(existingUser.password,password);
+        const decryptedPass = await bcrypt.compare(password,existingUser.password);
 
         if(decryptedPass){
             const token = jwt.sign({id: existingUser._id}, process.env.JWT_SECRET, {expiresIn: '7d'}); 
