@@ -30,9 +30,9 @@ const jobSchema = new mongoose.Schema(
         },
         //list bnana h with name,email,phone.
         contactDetails:{
-            type:String,
+            type:Object,
             required: true,
-            unique: true,
+           
         },
         //location ka kch kro
         jobCost:{
